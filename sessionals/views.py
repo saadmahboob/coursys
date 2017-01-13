@@ -39,7 +39,7 @@ def new_account(request):
             account.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Account was created.'
+                                 'Account was created.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="added account: %s" % account,
@@ -65,7 +65,7 @@ def edit_account(request, account_slug):
             account.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Account was edited.'
+                                 'Account was edited.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="edited account: %s" % account,
@@ -87,7 +87,7 @@ def delete_account(request, account_id):
         account.delete()
         messages.add_message(request,
                              messages.SUCCESS,
-                             u'Account was deleted.'
+                             'Account was deleted.'
                              )
         l = LogEntry(userid=request.user.username,
                      description="deleted account: %s" % account,
@@ -124,7 +124,7 @@ def new_config(request):
             config.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Configuration was created.'
+                                 'Configuration was created.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="added config: %s" % config,
@@ -150,7 +150,7 @@ def edit_config(request, config_slug):
             config.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Configuration was edited.'
+                                 'Configuration was edited.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="edited config: %s" % config,
@@ -175,7 +175,7 @@ def new_contract(request):
             contract.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Contract was created.'
+                                 'Contract was created.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="added contract for: %s" % contract.sessional,
@@ -212,7 +212,7 @@ def edit_contract(request, contract_slug):
             contract.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Contract was edited.'
+                                 'Contract was edited.'
                                  )
             l = LogEntry(userid=request.user.username,
                          description="edited contract for: %s" % contract.sessional,
@@ -236,7 +236,7 @@ def delete_contract(request, contract_id):
         contract.delete()
         messages.add_message(request,
                              messages.SUCCESS,
-                             u'Contract was deleted.'
+                             'Contract was deleted.'
                              )
         l = LogEntry(userid=request.user.username,
                      description="deleted contract: %s" % contract,

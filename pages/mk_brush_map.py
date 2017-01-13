@@ -32,6 +32,6 @@ for fn in os.listdir(src_dir):
             a = bm.group(1)
             brush_code[a] = fn
 
-print 'brush_code = ' + repr(brush_code)
+print('brush_code = ' + repr(brush_code))
 
 

@@ -25,7 +25,7 @@ def _home_redirect():
 
 
 def _contracts_redirect(unit_slug, semester):
-    if not isinstance(semester, basestring):
+    if not isinstance(semester, str):
         raise ValueError("Semester must be a four-character string - 1141")
     return HttpResponseRedirect(reverse('tacontracts:list_all_contracts', 
                                         kwargs={'unit_slug':unit_slug,
@@ -33,7 +33,7 @@ def _contracts_redirect(unit_slug, semester):
 
 
 def _category_redirect(unit_slug, semester):
-    if not isinstance(semester, basestring):
+    if not isinstance(semester, str):
         raise ValueError("Semester must be a four-character string - 1141")
     return HttpResponseRedirect(reverse('tacontracts:view_categories',
                                         kwargs={'unit_slug':unit_slug,
@@ -41,7 +41,7 @@ def _category_redirect(unit_slug, semester):
 
 
 def _contract_redirect(unit_slug, semester, contract_slug):
-    if not isinstance(semester, basestring):
+    if not isinstance(semester, str):
         raise ValueError("Semester must be a four-character string - 1141")
     return HttpResponseRedirect(reverse('tacontracts:view_contract',
                                         kwargs={'unit_slug':unit_slug,
@@ -102,7 +102,7 @@ def new_semester(request):
             sem.save()
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Semester %s created.' % unicode(sem))
+                                 'Semester %s created.' % str(sem))
             return _contracts_redirect(sem.unit.label, sem.semester.name)
     else:
         form = HiringSemesterForm(request)
@@ -141,7 +141,7 @@ def edit_semester(request, unit_slug, semester):
             sem.save()
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Semester %s updated.' % unicode(sem))
+                                 'Semester %s updated.' % str(sem))
             return _home_redirect()
     else:
         form = HiringSemesterForm(request, instance=semester)
@@ -226,17 +226,17 @@ def copy_categories(request, unit_slug, semester):
             hiring_semester.config['copied_categories']):
         messages.add_message(request,
                              messages.ERROR,
-                             u'TA Categories have already been copied.')
+                             'TA Categories have already been copied.')
     try:
         hiring_semester.copy_categories_from_previous_semester(unit=unit)
         hiring_semester.config['copied_categories'] = True
         messages.add_message(request, 
                              messages.SUCCESS, 
-                             u'TA Categories copied.')
+                             'TA Categories copied.')
     except NoPreviousSemesterException:
         messages.add_message(request,
                              messages.ERROR,
-                             u'No previous semester to copy from.')
+                             'No previous semester to copy from.')
 
     return _category_redirect(unit_slug, hiring_semester.semester.name)
 
@@ -269,7 +269,7 @@ def new_category(request, unit_slug, semester):
             category.save()
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Category %s created.' % unicode(category))
+                                 'Category %s created.' % str(category))
             return _category_redirect(unit_slug, semester)
     else:
         form = TACategoryForm(hiring_semester.unit)
@@ -296,7 +296,7 @@ def edit_category(request, unit_slug, semester, category_slug):
             category.save()
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Category %s updated.' % unicode(category))
+                                 'Category %s updated.' % str(category))
             return _category_redirect(unit_slug, semester)
     else:
         form = TACategoryForm(hiring_semester.unit, instance=category)
@@ -321,7 +321,7 @@ def hide_category(request, unit_slug, semester, category_slug):
         category.hide()
         messages.add_message(request, 
                              messages.SUCCESS, 
-                             u'Category %s hidden.' % unicode(category))
+                             'Category %s hidden.' % str(category))
     return _category_redirect(unit_slug, semester)
 
 
@@ -343,7 +343,7 @@ def new_contract(request, unit_slug, semester):
                                      'You have entered 0 pay periods.  This TA will never get paid.')
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Contract %s created.' % unicode(contract))
+                                 'Contract %s created.' % str(contract))
             return _contract_redirect(unit_slug, semester, contract.slug)
     else:
         form = TAContractForm(hiring_semester, initial={
@@ -404,7 +404,7 @@ def edit_contract(request, unit_slug, semester, contract_slug):
                                      'You have entered 0 pay periods.  This TA will never get paid.')
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Contract %s updated.' % unicode(contract))
+                                 'Contract %s updated.' % str(contract))
             return _contract_redirect(unit_slug, semester, contract.slug)
     else:
         form = TAContractForm(hiring_semester, instance=contract)
@@ -430,7 +430,7 @@ def sign_contract(request, unit_slug, semester, contract_slug):
         contract.sign()
         messages.add_message(request, 
                              messages.SUCCESS, 
-                             u'Contract signed!')
+                             'Contract signed!')
         return _contract_redirect(unit_slug, semester, contract_slug)
     else:
         return _contract_redirect(unit_slug, semester, contract_slug)
@@ -451,13 +451,13 @@ def cancel_contract(request, unit_slug, semester, contract_slug):
             contract.cancel()
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Contract Deleted!')
+                                 'Contract Deleted!')
             return _contracts_redirect(unit_slug, semester)
         else:
             contract.cancel()
             messages.add_message(request, 
                                  messages.SUCCESS,
-                                 u'Contract Cancelled!')
+                                 'Contract Cancelled!')
             return _contract_redirect(unit_slug, semester, contract.slug)
     else:
         return _contract_redirect(unit_slug, semester, contract_slug)
@@ -478,7 +478,7 @@ def copy_contract(request, unit_slug, semester, contract_slug):
         newcontract = contract.copy(request.user.username)
         messages.add_message(request, 
                              messages.SUCCESS, 
-                             u'Contract copied!')
+                             'Contract copied!')
         return _contract_redirect(unit_slug, semester, newcontract.slug)
     else:
         return _contract_redirect(unit_slug, semester, contract_slug)
@@ -531,11 +531,11 @@ def new_course(request, unit_slug, semester, contract_slug):
             except IntegrityError:
                 messages.add_message(request, 
                                      messages.ERROR, 
-                                     u'This contract already has %s.' % unicode(course))
+                                     'This contract already has %s.' % str(course))
                 return _contract_redirect(unit_slug, semester, contract.slug)
             messages.add_message(request, 
                                  messages.SUCCESS, 
-                                 u'Course %s created.' % unicode(course))
+                                 'Course %s created.' % str(course))
             return _contract_redirect(unit_slug, semester, contract.slug)
     else:
         form = TACourseForm(semester)
@@ -562,7 +562,7 @@ def delete_course(request, unit_slug, semester, contract_slug, course_slug):
                                      contract=contract,
                                      slug=course_slug)
         course.delete()
-        messages.add_message(request, messages.SUCCESS, u'Course deleted.')
+        messages.add_message(request, messages.SUCCESS, 'Course deleted.')
         return _contract_redirect(unit_slug, semester, contract_slug)
     else:
         return _contract_redirect(unit_slug, semester, contract_slug)
@@ -597,7 +597,7 @@ def bulk_email(request, unit_slug, semester):
                 e = EmailReceipt(contract=contract, 
                                  content=n)
                 e.save()
-            messages.add_message(request, messages.SUCCESS, u'Email sent.')
+            messages.add_message(request, messages.SUCCESS, 'Email sent.')
             return _contracts_redirect(unit_slug, semester)
     else:
         form = EmailForm()
@@ -630,7 +630,7 @@ def accept_contract(request, semester, contract_slug):
         contract.save()
         messages.add_message(request, 
                              messages.SUCCESS, 
-                             u'Contract Accepted.')
+                             'Contract Accepted.')
     return HttpResponseRedirect(reverse('tacontracts:student_contract', 
                                         kwargs={'semester':semester}))
 
@@ -680,7 +680,7 @@ def contracts_csv(request, unit_slug, semester):
             prep_units = ''
 
         # Build a string of all course offerings tied to this contract to add to the results.
-        course_list_string = ', '.join([unicode.encode(ta_course.course.name()) for ta_course in c.course.all()])
+        course_list_string = ', '.join([str.encode(ta_course.course.name()) for ta_course in c.course.all()])
         
         row = []
         #Batch ID

@@ -11,7 +11,7 @@ from coredata.queries import SIMSConn, SIMSProblem, userid_to_emplid, csrpt_upda
 from dashboard.photos import do_photo_fetch
 
 import celery
-import random, socket, subprocess, urllib2, os, stat, time, copy, pprint
+import random, socket, subprocess, urllib.request, urllib.error, urllib.parse, os, stat, time, copy, pprint
 
 
 def _last_component(s):
@@ -163,7 +163,7 @@ def deploy_checks(request=None):
         else:
             failed.append(('Reporting DB connection', 'query inexplicably returned nothing'))
     except SIMSProblem as e:
-        failed.append(('Reporting DB connection', 'SIMSProblem, %s' % (unicode(e))))
+        failed.append(('Reporting DB connection', 'SIMSProblem, %s' % (str(e))))
     except ImportError:
         failed.append(('Reporting DB connection', "couldn't import DB2 module"))
 
@@ -194,7 +194,7 @@ def deploy_checks(request=None):
                 passed.append(('Photo fetching', 'okay'))
         except (KeyError, Unit.DoesNotExist, django.db.utils.ProgrammingError):
             failed.append(('Photo fetching', 'photo password not set'))
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             failed.append(('Photo fetching', 'failed to fetch photo (%s). Maybe wrong password?' % (e)))
     else:
         failed.append(('Photo fetching', 'not testing since memcached or celery failed'))
@@ -203,7 +203,7 @@ def deploy_checks(request=None):
     emplid = userid_to_emplid('ggbaker')
     if not emplid:
         failed.append(('Emplid API', 'no emplid returned'))
-    elif isinstance(emplid, basestring) and not emplid.startswith('2000'):
+    elif isinstance(emplid, str) and not emplid.startswith('2000'):
         failed.append(('Emplid API', 'incorrect emplid returned'))
     else:
         passed.append(('Emplid API', 'okay'))
@@ -233,7 +233,7 @@ def deploy_checks(request=None):
         try:
             do_check()
         except RuntimeError as e:
-            failed.append(('Backup server', unicode(e)))
+            failed.append(('Backup server', str(e)))
         passed.append(('Backup server', 'okay'))
 
 
@@ -389,7 +389,7 @@ def cache_check():
     # A version of python-memcached had unicode issues: https://github.com/linsomniac/python-memcached/issues/79
     # Make sure unicode runs through the Django cache unchanged.
     k = 'test_cache_check_key'
-    v = u'\u2021'
+    v = '\u2021'
     cache.set(k, v, 30)
     v0 = cache.get(k)
     if v != v0:
@@ -419,7 +419,7 @@ def celery_info():
     active = i.active()
     if not active:
         return [('Error', 'Could not inspect Celery: it may be down.')]
-    for worker, tasks in active.items():
+    for worker, tasks in list(active.items()):
         if tasks:
             taskstr = '; '.join("%s(*%s, **%s)" % (t['name'], t['args'], t['kwargs'])
                        for t in tasks)
@@ -428,7 +428,7 @@ def celery_info():
 
         info.append((worker + ' active', taskstr))
 
-    for worker, tasks in i.scheduled().items():
+    for worker, tasks in list(i.scheduled().items()):
         info.append((worker + ' scheduled', len(tasks)))
 
     info.sort()
@@ -462,7 +462,7 @@ def ps_info():
                     cmd = escape(cmd)
 
                 psdata.append('<tr><td>%s</td><td>%s</td><td>%s</td><td>%.1f</td><td>%s</td><td>%s</td></tr>' \
-                    % (proc.pid, proc.username(), perc, mem, escape(unicode(proc.status())), cmd))
+                    % (proc.pid, proc.username(), perc, mem, escape(str(proc.status())), cmd))
 
         except psutil.NoSuchProcess:
             pass

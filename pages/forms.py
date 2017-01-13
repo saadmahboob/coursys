@@ -1,8 +1,8 @@
 from django import forms
 from django.db import transaction
 from pages.models import Page, PageVersion, READ_ACL_CHOICES, WRITE_ACL_CHOICES
-from importer import HTMLWiki
-import urllib2, urlparse
+from .importer import HTMLWiki
+import urllib.request, urllib.error, urllib.parse, urllib.parse
 
 
 class WikiField(forms.CharField):
@@ -172,7 +172,7 @@ class SiteImportForm(forms.Form):
         self.editor = editor
     
     def _labelize(self, url, title):
-        path = urlparse.urlsplit(url).path
+        path = urllib.parse.urlsplit(url).path
         if path:
             parts = path.split('/')
             if len(parts) >= 1 and parts[-1]:
@@ -183,7 +183,7 @@ class SiteImportForm(forms.Form):
     
     def _import_page(self, url):
         try:
-            fh = urllib2.urlopen(url, timeout=20)
+            fh = urllib.request.urlopen(url, timeout=20)
             if 'content-type' in fh.headers:
                 ctype = fh.headers['content-type'].split(';')[0]
                 is_html = ctype in ['text/html', 'application/xhtml+xml']
@@ -217,7 +217,7 @@ class SiteImportForm(forms.Form):
         if not url:
             return None
         
-        baseurl = urlparse.urljoin(url, "./")
+        baseurl = urllib.parse.urljoin(url, "./")
         needed = set([url])
         done = set()
         found = {}
@@ -231,7 +231,7 @@ class SiteImportForm(forms.Form):
             except forms.ValidationError as e:
                 errors.append(e.messages[0])
             done.add(url)
-            newurls = set((urlparse.urljoin(url, u) for u in newurls))
+            newurls = set((urllib.parse.urljoin(url, u) for u in newurls))
             newurls = set((u for u in newurls if u.startswith(baseurl)))
             needed = needed | newurls - done
             found[page.label] = (page, pv)
@@ -272,7 +272,7 @@ class PageImportForm(forms.Form):
             return None
         
         try:
-            fh = urllib2.urlopen(url, timeout=20)
+            fh = urllib.request.urlopen(url, timeout=20)
             html = fh.read()
         except:
             raise forms.ValidationError("Could not fetch the URL.")

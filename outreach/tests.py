@@ -15,12 +15,12 @@ class OutreachTestCase(TestCase):
         # First, without logging in:
         url = reverse('outreach:outreach_index')
         response = client.get(url)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         # Now log in but without the correct role
         client.login_user('pba7')
         response = client.get(url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
 
     def test_pages(self):
@@ -44,7 +44,7 @@ class OutreachTestCase(TestCase):
 
         url=reverse('outreach:toggle_registration_attendance', kwargs={'registration_id': registration.id})
         response = client.post(url, follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
 
 

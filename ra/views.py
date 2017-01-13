@@ -22,7 +22,7 @@ from django.db import transaction
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from haystack.query import SearchQuerySet
 
-import json, datetime, urllib
+import json, datetime, urllib.request, urllib.parse, urllib.error
 
 def _can_view_ras():
     """
@@ -49,7 +49,7 @@ def search(request, student_id=None):
     if request.method == 'POST':
         form = RASearchForm(request.POST)
         if not form.is_valid():
-            return HttpResponseRedirect(reverse('ra:found') + "?search=" + urllib.quote_plus(form.data['search']))
+            return HttpResponseRedirect(reverse('ra:found') + "?search=" + urllib.parse.quote_plus(form.data['search']))
         search = form.cleaned_data['search']
         # deal with people without active computing accounts
         if search.userid:
@@ -96,13 +96,13 @@ def student_appointments(request, userid):
 def _appointment_defaults(units, emplid=None):
     hiring_faculty_choices = possible_supervisors(units)
     unit_choices = [(u.id, u.name) for u in units]
-    project_choices = [(p.id, unicode(p)) for p in Project.objects.filter(unit__in=units, hidden=False)]
-    account_choices = [(a.id, unicode(a)) for a in Account.objects.filter(unit__in=units, hidden=False)]
-    scholarship_choices = [("", u'\u2014')]
+    project_choices = [(p.id, str(p)) for p in Project.objects.filter(unit__in=units, hidden=False)]
+    account_choices = [(a.id, str(a)) for a in Account.objects.filter(unit__in=units, hidden=False)]
+    scholarship_choices = [("", '\u2014')]
     if emplid:
         for s in Scholarship.objects.filter(student__person__emplid=emplid):
             scholarship_choices.append((s.pk, s.scholarship_type.unit.label + ": " + s.scholarship_type.name + " (" + s.start_semester.name + " to " + s.end_semester.name + ")"))
-    program_choices = [('', "00000, None")] + [(p.id, unicode(p)) for p in Program.objects.visible_by_unit(units).order_by('program_number')]
+    program_choices = [('', "00000, None")] + [(p.id, str(p)) for p in Program.objects.visible_by_unit(units).order_by('program_number')]
     return (scholarship_choices, hiring_faculty_choices, unit_choices, project_choices, account_choices,
             program_choices)
     
@@ -224,8 +224,8 @@ def reappoint(request, ra_slug):
             scholarship_choices.append((s.pk, s.scholarship_type.unit.label + ": " + s.scholarship_type.name + " (" + s.start_semester.name + " to " + s.end_semester.name + ")"))
     raform.fields['scholarship'].choices = scholarship_choices
     raform.fields['unit'].choices = [(u.id, u.name) for u in request.units]
-    raform.fields['project'].choices = [(p.id, unicode(p.project_number)) for p in Project.objects.filter(unit__in=request.units)]
-    raform.fields['account'].choices = [(a.id, u'%s (%s)' % (a.account_number, a.title)) for a in Account.objects.filter(unit__in=request.units)]
+    raform.fields['project'].choices = [(p.id, str(p.project_number)) for p in Project.objects.filter(unit__in=request.units)]
+    raform.fields['account'].choices = [(a.id, '%s (%s)' % (a.account_number, a.title)) for a in Account.objects.filter(unit__in=request.units)]
     return render(request, 'ra/new.html', { 'raform': raform, 'appointment': appointment })
 
 @requires_role("FUND")
@@ -530,11 +530,11 @@ class RADataJson(BaseDatatableView):
         elif column == 'person':
             url = ra.get_absolute_url()
             name = ra.person.sortname()
-            return u'<a href="%s">%s</a>' % (escape(url), escape(name))
+            return '<a href="%s">%s</a>' % (escape(url), escape(name))
         elif column == 'unit':
             return ra.unit.label
 
-        return unicode(getattr(ra, column))
+        return str(getattr(ra, column))
 
 
 def pay_periods(request):
@@ -613,7 +613,7 @@ def person_info(request):
         try:
             otherinfo = more_personal_info(emplid, needed=['citizen', 'visa'])
             result.update(otherinfo)
-        except SIMSProblem, e:
+        except SIMSProblem as e:
             result['error'] = e.message
 
     return HttpResponse(json.dumps(result), content_type='application/json;charset=utf-8')
@@ -677,7 +677,7 @@ def delete_attachment(request, ra_slug, attach_slug):
     attachment.hide()
     messages.add_message(request,
                          messages.SUCCESS,
-                         u'Attachment deleted.'
+                         'Attachment deleted.'
                          )
     l = LogEntry(userid=request.user.username, description="Hid attachment %s" % attachment, related_object=attachment)
     l.save()
@@ -700,7 +700,7 @@ def new_program(request):
             program = form.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Program was created')
+                                 'Program was created')
             l = LogEntry(userid=request.user.username,
                          description="Added program %s" % program,
                          related_object=program)
@@ -718,7 +718,7 @@ def delete_program(request, program_id):
     program.delete()
     messages.add_message(request,
                          messages.SUCCESS,
-                         u'Program deleted.'
+                         'Program deleted.'
                          )
     l = LogEntry(userid=request.user.username, description="Hid program %s" % program, related_object=program)
     l.save()
@@ -734,7 +734,7 @@ def edit_program(request, program_slug):
             program = form.save()
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 u'Program was created')
+                                 'Program was created')
             l = LogEntry(userid=request.user.username,
                          description="Added program %s" % program,
                          related_object=program)

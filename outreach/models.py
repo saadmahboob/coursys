@@ -73,7 +73,7 @@ class OutreachEvent(models.Model):
     slug = AutoSlugField(populate_from='autoslug', null=False, editable=False, unique=True)
 
     def __unicode__(self):
-        return u"%s - %s - %s" % (self.title, self.unit.label, self.start_date)
+        return "%s - %s - %s" % (self.title, self.unit.label, self.start_date)
 
     def delete(self):
         """Like most of our objects, we don't want to ever really delete it."""
@@ -149,7 +149,7 @@ class OutreachEventRegistration(models.Model):
     attended = models.BooleanField(default=True, editable=False, blank=False, null=False)
 
     def __unicode__(self):
-        return u"%s, %s = %s" % (self.last_name, self.first_name, self.event)
+        return "%s, %s = %s" % (self.last_name, self.first_name, self.event)
 
     def delete(self):
         """Like most of our objects, we don't want to ever really delete it."""
@@ -157,7 +157,7 @@ class OutreachEventRegistration(models.Model):
         self.save()
 
     def fullname(self):
-        return u"%s, %s %s" % (self.last_name, self.first_name, self.middle_name or '')
+        return "%s, %s %s" % (self.last_name, self.first_name, self.middle_name or '')
 
     def save(self, *args, **kwargs):
         self.last_modified = timezone.now()

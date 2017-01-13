@@ -100,7 +100,7 @@ def get_unit(acad_org, create=False):
             unit = Unit(acad_org=acad_org, label=label, name=name, parent=None)
             unit.save()
         else:
-            raise KeyError, "Unknown unit: acad_org=%s, label~=%s, name~=%s." % (acad_org, label, name)
+            raise KeyError("Unknown unit: acad_org=%s, label~=%s, name~=%s." % (acad_org, label, name))
 
     return unit
         
@@ -121,12 +121,12 @@ def import_offering(subject, number, section, strm, crse_id, class_nbr, componen
     graded = True # non-graded excluded in with "class_type='E'" in query
 
     # make sure the data is as we expect:
-    if not CAMPUSES.has_key(campus):
-        raise KeyError, "Unknown campus: %r." % (campus)
-    if not COMPONENTS.has_key(component):
-        raise KeyError, "Unknown course component: %r." % (component)
-    if not INSTR_MODE.has_key(instr_mode):
-        raise KeyError, "Unknown instructional mode: %r." % (instr_mode)
+    if campus not in CAMPUSES:
+        raise KeyError("Unknown campus: %r." % (campus))
+    if component not in COMPONENTS:
+        raise KeyError("Unknown course component: %r." % (component))
+    if instr_mode not in INSTR_MODE:
+        raise KeyError("Unknown instructional mode: %r." % (instr_mode))
 
     if cancel_dt is not None:
         # mark cancelled sections
@@ -143,7 +143,7 @@ def import_offering(subject, number, section, strm, crse_id, class_nbr, componen
     c_old = list(set(c_old1) | set(c_old2))
     
     if len(c_old)>1:
-        raise KeyError, "Already duplicate courses: %r %r" % (c_old1, c_old2)
+        raise KeyError("Already duplicate courses: %r %r" % (c_old1, c_old2))
     elif len(c_old)==1:
         # already in DB: update things that might have changed
         c = c_old[0]
@@ -255,7 +255,7 @@ def get_person(emplid, commit=True, force=False, grad_data=False):
     p_old = Person.objects.filter(emplid=emplid)
     if len(p_old)>1:
         # should be dead code, since emplid is a unique key in the DB
-        raise KeyError, "Already duplicate people: %r" % (p_old)
+        raise KeyError("Already duplicate people: %r" % (p_old))
     elif len(p_old)==1:
         p = p_old[0]
     else:
@@ -353,12 +353,12 @@ def import_meeting_times(offering):
             # some meeting times exist with no start/end time
             continue        
 
-        wkdays = [n for n, day in zip(range(7), (mon,tues,wed,thurs,fri,sat,sun)) if day=='Y']
+        wkdays = [n for n, day in zip(list(range(7)), (mon,tues,wed,thurs,fri,sat,sun)) if day=='Y']
         labtut_section, mtg_type = fix_mtg_info(class_section, stnd_mtg_pat)
         for wkd in wkdays:
             m_old = MeetingTime.objects.filter(offering=offering, weekday=wkd, start_time=start, end_time=end, labtut_section=labtut_section, room=room)
             if len(m_old)>1:
-                raise KeyError, "Already duplicate meeting: %r" % (m_old)
+                raise KeyError("Already duplicate meeting: %r" % (m_old))
             elif len(m_old)==1:
                 # new data: just replace.
                 m_old = m_old[0]
@@ -406,7 +406,7 @@ def ensure_member(person, offering, role, cred, added_reason, career, labtut_sec
         # may be other manually-created dropped entries: that's okay.
         m_old = Member.objects.filter(person=person, offering=offering).exclude(role="DROP")
         if len(m_old)>1:
-            raise KeyError, "Already duplicate entries: %r" % (m_old)
+            raise KeyError("Already duplicate entries: %r" % (m_old))
         elif len(m_old)==0:
             m_old = Member.objects.filter(person=person, offering=offering)
         
@@ -545,7 +545,7 @@ def import_one_semester(strm, extra_where='1=1'):
     offerings = list(offerings)
     offerings.sort()
     for o in offerings:
-        print o
+        print(o)
         import_offering_members(o, students=False)
 
 
@@ -721,7 +721,7 @@ def import_semester_info(verbose=False, dry_run=False, long_long_ago=False, boot
 
 
     if verbose:
-        print '\n'.join(output)
+        print('\n'.join(output))
 
 
 def import_active_grads_gpas(verbose=False, dry_run=False):
@@ -734,7 +734,7 @@ def import_active_grads_gpas(verbose=False, dry_run=False):
     for grad in active_grads:
         data = more_personal_info(grad.person.emplid, needed=['ccredits', 'gpa'])
         if verbose:
-            print "Updating info for: ", grad.person.name(), " with: ", data
+            print("Updating info for: ", grad.person.name(), " with: ", data)
         grad.person.config.update(data)
         if not dry_run:
             grad.person.save()

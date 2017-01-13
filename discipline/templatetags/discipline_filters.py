@@ -20,9 +20,9 @@ def format_field(case, field):
     
     if field == 'contact_email_text':
         # special case: contact email is plain text
-        return mark_safe("<pre>" + escape(wrap(case.substitite_values(unicode(text)), 78)) + "</pre>")
+        return mark_safe("<pre>" + escape(wrap(case.substitite_values(str(text)), 78)) + "</pre>")
     else:
-        return mark_safe(textile_restricted(case.substitite_values(unicode(text))))
+        return mark_safe(textile_restricted(case.substitite_values(str(text))))
 
 @register.filter()
 def edit_link(case, field):

@@ -142,9 +142,9 @@ class HTMLWiki(object):
 
             if alt.strip():
                 # pseudo-escape alt text
-                alt = alt.replace('}}', u'}\uFEFF}') # unicode zero width no-break space
+                alt = alt.replace('}}', '}\uFEFF}') # unicode zero width no-break space
                 if alt[-1] == '}':
-                    alt += u'\uFEFF'
+                    alt += '\uFEFF'
                 return '{{%s|%s}}' % (url, alt)
             else:
                 return '{{%s}}' % (url)
@@ -162,9 +162,9 @@ class HTMLWiki(object):
 
             # pseudo-escape content text
             content = self.handle_contents(elt, block=False, context=c).strip()
-            content = content.replace(']]', u']\uFEFF]') # unicode zero width no-break space
+            content = content.replace(']]', ']\uFEFF]') # unicode zero width no-break space
             if content and content[-1] == ']':
-                    content += u'\uFEFF'
+                    content += '\uFEFF'
 
             #print ">>>", url
             self.urls.add(url)
@@ -244,11 +244,11 @@ class HTMLWiki(object):
             return ''
         elif type(elt) in [BeautifulSoup.Declaration, BeautifulSoup.Comment, BeautifulSoup.Declaration, BeautifulSoup.ProcessingInstruction]:
             return ''
-        elif isinstance(elt, basestring):
+        elif isinstance(elt, str):
             if type(elt) == BeautifulSoup.CData:
                 s = BeautifulSoup.NavigableString.__str__(elt)
             else:
-                s = unicode(elt)
+                s = str(elt)
             
             if context == 'pre':
                 return s
@@ -256,7 +256,7 @@ class HTMLWiki(object):
                 return self.wiki_escape(self.any_whitespace.sub(' ', s))
         elif type(elt) == BeautifulSoup.Tag:
             return self.handle_tag(elt, context=context)
-        raise ValueError, str(type(elt))
+        raise ValueError(str(type(elt)))
 
     def from_soup(self, soup):
         """
@@ -276,7 +276,7 @@ class HTMLWiki(object):
                    convertEntities=BeautifulSoup.BeautifulSoup.XHTML_ENTITIES)
         except:
             # any badness from BeautifulSoup becomes a ParseError
-            raise self.ParseError, "Could not parse HTML"
+            raise self.ParseError("Could not parse HTML")
 
         return self.from_soup(soup)
 
@@ -299,7 +299,7 @@ class HTMLWiki(object):
                    convertEntities=BeautifulSoup.BeautifulSoup.XHTML_ENTITIES)
         except:
             # any badness from BeautifulSoup becomes a ParseError
-            raise self.ParseError, "Could not parse HTML"
+            raise self.ParseError("Could not parse HTML")
 
         self.urls = set()
         title = self.get_title(soup)

@@ -263,15 +263,15 @@ class PageVersion(models.Model):
             key = self.wikitext_cache_key()
             wikitext = cache.get(key)
             if wikitext:
-                return unicode(wikitext)
+                return str(wikitext)
             else:
                 src = self.diff_from
                 diff = json.loads(self.diff)
                 wikitext = src.apply_changes(diff)
                 cache.set(key, wikitext, 24*3600) # no need to expire: shouldn't change for a version
-                return unicode(wikitext)
+                return str(wikitext)
 
-        return unicode(self.wikitext)
+        return str(self.wikitext)
 
     def __init__(self, *args, **kwargs):
         super(PageVersion, self).__init__(*args, **kwargs)
@@ -347,7 +347,7 @@ class PageVersion(models.Model):
             else:
                 raise ValueError
 
-        return u"\n".join(lines)
+        return "\n".join(lines)
 
     def diff_to(self, other):
         """
@@ -414,7 +414,7 @@ class PageVersion(models.Model):
         self.page.expire_offering_cache()
 
     def __unicode__(self):
-        return unicode(self.page) + '@' + unicode(self.created_at)
+        return str(self.page) + '@' + str(self.created_at)
 
     def is_filepage(self):
         """
@@ -461,7 +461,7 @@ class PageVersion(models.Model):
         """
         macros = self.offering_macros()
         if macros:
-            for macro, replacement in macros.iteritems():
+            for macro, replacement in macros.items():
                 wikitext = wikitext.replace('+' + macro + '+', replacement)
         return wikitext
 
@@ -523,7 +523,7 @@ class PagePermission(models.Model):
 # custom creoleparser Parser class:
 
 import genshi
-from brush_map import brush_code
+from .brush_map import brush_code
 from genshi.core import Markup
 
 brushre = r"[\w\-#]+"
@@ -596,9 +596,9 @@ def _find_activity(offering, arg_string):
     attrs = {}
     acts = Activity.objects.filter(offering=offering, deleted=False).filter(models.Q(name=act_name) | models.Q(short_name=act_name))
     if len(acts) == 0:
-        return u'[No activity "%s"]' % (act_name)
+        return '[No activity "%s"]' % (act_name)
     elif len(acts) > 1:
-        return u'[There is both a name and short name "%s"]' % (act_name)
+        return '[There is both a name and short name "%s"]' % (act_name)
     else:
         return acts[0]
         due = act.due_date
@@ -620,7 +620,7 @@ def _duedate(offering, dateformat, macro, environ, *act_name):
             text = act.due_date.strftime(dateformat)
             attrs['title'] = iso8601
         else:
-            text = u'["%s" has no due date specified]' % (act.name)
+            text = '["%s" has no due date specified]' % (act.name)
             attrs['class'] = 'empty'
     else:
         # error

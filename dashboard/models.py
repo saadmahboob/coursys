@@ -97,7 +97,7 @@ class NewsItem(models.Model):
                 }
 
         if self.course:
-            subject = u"%s: %s" % (self.course.name(), self.title)
+            subject = "%s: %s" % (self.course.name(), self.title)
             headers['X-course'] = self.course.slug
         else:
             subject = self.title
@@ -113,16 +113,16 @@ class NewsItem(models.Model):
         else:
             url = settings.BASE_ABS_URL + reverse('news:news_list')
         
-        text_content = u"For more information, see " + url + "\n"
-        text_content += u"\n--\nYou received this email from CourSys. If you do not wish to receive\nthese notifications by email, you can edit your email settings here:\n  "
+        text_content = "For more information, see " + url + "\n"
+        text_content += "\n--\nYou received this email from CourSys. If you do not wish to receive\nthese notifications by email, you can edit your email settings here:\n  "
         text_content += settings.BASE_ABS_URL + reverse('config:news_config')
         
         if self.course:
-            html_content = u'<h3>%s: <a href="%s">%s</a></h3>\n' % (self.course.name(), url, self.title)
+            html_content = '<h3>%s: <a href="%s">%s</a></h3>\n' % (self.course.name(), url, self.title)
         else:
-            html_content = u'<h3><a href="%s">%s</a></h3>\n' % (url, self.title)
+            html_content = '<h3><a href="%s">%s</a></h3>\n' % (url, self.title)
         html_content += self.content_xhtml()
-        html_content += u'\n<p style="font-size: smaller; border-top: 1px solid black;">You received this email from CourSys. If you do not wish to receive\nthese notifications by email, you can <a href="' + settings.BASE_ABS_URL + reverse('config:news_config') + '">change your email settings</a>.</p>'
+        html_content += '\n<p style="font-size: smaller; border-top: 1px solid black;">You received this email from CourSys. If you do not wish to receive\nthese notifications by email, you can <a href="' + settings.BASE_ABS_URL + reverse('config:news_config') + '">change your email settings</a>.</p>'
         
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email], headers=headers)
         msg.attach_alternative(html_content, "text/html")
@@ -139,7 +139,7 @@ class NewsItem(models.Model):
         if val:
             return mark_safe(val)
 
-        markup = mark_safe(textile_restricted(unicode(self.content)))
+        markup = mark_safe(textile_restricted(str(self.content)))
 
         cache.set(key, markup, 86400)
         return markup

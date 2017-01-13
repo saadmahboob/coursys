@@ -3,7 +3,7 @@ from django.db.models import Count
 from autoslug import AutoSlugField
 from courselib.slugs import make_slug
 from django.conf import settings
-import datetime, urlparse, decimal
+import datetime, urllib.parse, decimal
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.core.cache import cache
@@ -157,38 +157,38 @@ class Person(models.Model, ConditionalSaveMixin):
         return "Userid"
 
     def __unicode__(self):
-        return u"%s, %s" % (self.last_name, self.first_name)
+        return "%s, %s" % (self.last_name, self.first_name)
 
     def name(self):
-        return u"%s %s" % (self.first_name, self.last_name)
+        return "%s %s" % (self.first_name, self.last_name)
 
     def sortname(self):
-        return u"%s, %s" % (self.last_name, self.first_name)
+        return "%s, %s" % (self.last_name, self.first_name)
 
     def initials(self):
-        return u"%s%s" % (self.first_name[0], self.last_name[0])
+        return "%s%s" % (self.first_name[0], self.last_name[0])
 
     def full_email(self):
-        return u"%s <%s>" % (self.name(), self.email())
+        return "%s <%s>" % (self.name(), self.email())
 
     def real_pref_first(self):
         return self.config.get('pref_first_name', None) or self.pref_first_name or self.first_name
 
     def name_pref(self):
-        return u"%s %s" % (self.real_pref_first(), self.last_name)
+        return "%s %s" % (self.real_pref_first(), self.last_name)
 
     def first_with_pref(self):
         name = self.first_name
         pref = self.real_pref_first()
         if pref != self.first_name:
-            name += u' (%s)' % (pref)
+            name += ' (%s)' % (pref)
         return name
 
     def sortname_pref(self):
-        return u"%s, %s" % (self.last_name, self.first_with_pref())
+        return "%s, %s" % (self.last_name, self.first_with_pref())
 
     def name_with_pref(self):
-        return u"%s %s" % (self.first_with_pref(), self.last_name)
+        return "%s %s" % (self.first_with_pref(), self.last_name)
 
     def letter_name(self):
         if 'letter_name' in self.config:
@@ -230,7 +230,7 @@ class Person(models.Model, ConditionalSaveMixin):
         ordering = ['last_name', 'first_name', 'userid']
     
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     
     def email_mailto(self):
         "A mailto: URL for this person's email address: handles the case where we don't know an email for them."
@@ -241,7 +241,7 @@ class Person(models.Model, ConditionalSaveMixin):
             return "None"
 
     def search_label_value(self):
-        return u"%s (%s), %s" % (self.name(), self.userid, self.emplid)
+        return "%s (%s), %s" % (self.name(), self.userid, self.emplid)
 
     def get_role_account(self, type):
         """
@@ -300,13 +300,13 @@ class FuturePerson(models.Model):
     objects = FuturePersonManager()
 
     def __unicode__(self):
-        return u"%s, %s" % (self.last_name, self.first_name)
+        return "%s, %s" % (self.last_name, self.first_name)
 
     def name(self):
-        return u"%s %s" % (self.first_name, self.last_name)
+        return "%s %s" % (self.first_name, self.last_name)
 
     def sortname(self):
-        return u"%s, %s" % (self.last_name, self.first_name)
+        return "%s, %s" % (self.last_name, self.first_name)
 
     class Meta:
         verbose_name_plural = "FuturePeople"
@@ -520,13 +520,13 @@ class Semester(models.Model):
         elif sm == 7:
             return 3*yr + 2
         else:
-            raise ValueError, "Unknown semester number"
+            raise ValueError("Unknown semester number")
     def __sub__(self, other):
         "Number of semesters between the two args"
         return self.sem_number() - other.sem_number()
 
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     
     def label(self):
         """
@@ -811,7 +811,7 @@ class Course(models.Model, ConditionalSaveMixin):
     def __cmp__(self, other):
         return cmp(self.subject, other.subject) or cmp(self.number, other.number)
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     def full_name(self):
         return "%s %s - %s" % (self.subject, self.number, self.title)
 
@@ -955,12 +955,12 @@ class CourseOffering(models.Model, ConditionalSaveMixin):
         # changed slug format for fall 2011
         if self.semester.name >= "1117":
             if self.section[2:4] == "00":
-                words = [str(s).lower() for s in self.semester.slugform(), self.subject, self.number, self.section[:2]]
+                words = [str(s).lower() for s in (self.semester.slugform(), self.subject, self.number, self.section[:2])]
             else:
                 # these shouldn't be in the DB anymore, but there are a few left, so handle them
-                words = [str(s).lower() for s in self.semester.slugform(), self.subject, self.number, self.section]
+                words = [str(s).lower() for s in (self.semester.slugform(), self.subject, self.number, self.section)]
         else:
-            words = [str(s).lower() for s in self.semester.name, self.subject, self.number, self.section]
+            words = [str(s).lower() for s in (self.semester.name, self.subject, self.number, self.section)]
         return '-'.join(words)
     slug = AutoSlugField(populate_from='autoslug', null=False, editable=False, unique=True)
 
@@ -993,7 +993,7 @@ class CourseOffering(models.Model, ConditionalSaveMixin):
     def instructors_str(self):
         @cached(60*60*24*2)
         def _instr_str(pk):
-            return u'; '.join(p.sortname() for p in CourseOffering.objects.get(pk=pk).instructors())
+            return '; '.join(p.sortname() for p in CourseOffering.objects.get(pk=pk).instructors())
         return _instr_str(self.pk)
 
     def tas(self):
@@ -1044,7 +1044,7 @@ class CourseOffering(models.Model, ConditionalSaveMixin):
 
     
     def get_wqb_display(self):
-        flags = [WQB_DICT[f] for f,v in self.flags.iteritems() if v and f in WQB_KEYS]
+        flags = [WQB_DICT[f] for f,v in self.flags.items() if v and f in WQB_KEYS]
         if flags:
             return ', '.join(flags)
         else:
@@ -1128,7 +1128,7 @@ class CourseOffering(models.Model, ConditionalSaveMixin):
         return d
     
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
 
     def __cmp__(self, other):
         return cmp(other.semester.name, self.semester.name) \
@@ -1198,7 +1198,7 @@ class Member(models.Model, ConditionalSaveMixin):
     def short_str(self):
         return "%s (%s)" % (self.person.name(), self.person.userid)
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     def clean(self):
         """
         Validate unique_together = (('person', 'offering', 'role'),) UNLESS role=='DROP'
@@ -1215,7 +1215,7 @@ class Member(models.Model, ConditionalSaveMixin):
             raise ValidationError('There is another membership with this person, offering, and role.  These must be unique for a membership (unless role is "dropped").')
 
     def bu(self):
-        return decimal.Decimal(unicode(self.raw_bu()))
+        return decimal.Decimal(str(self.raw_bu()))
 
     @staticmethod
     def get_memberships(userid):
@@ -1276,7 +1276,7 @@ class Member(models.Model, ConditionalSaveMixin):
             if 'teaching_credit_reason' in self.config:
                 reason = self.config['teaching_credit_reason']
                 if len(reason) > 15:
-                    reason = 'set manually: ' + reason[:15] + u'\u2026'
+                    reason = 'set manually: ' + reason[:15] + '\u2026'
                 else:
                     reason = 'set manually: ' + reason
             else:
@@ -1316,10 +1316,10 @@ class Member(models.Model, ConditionalSaveMixin):
 
     def set_teaching_credit(self, cred):
         assert isinstance(cred, fractions.Fraction) or isinstance(cred, int)
-        self.config['teaching_credit'] = unicode(cred)
+        self.config['teaching_credit'] = str(cred)
 
     def set_teaching_credit_reason(self, reason):
-        self.config['teaching_credit_reason'] = unicode(reason)
+        self.config['teaching_credit_reason'] = str(reason)
 
     def get_tug(self):
         assert self.role == 'TA'
@@ -1335,7 +1335,7 @@ class Member(models.Model, ConditionalSaveMixin):
 
     def svn_url(self):
         "SVN URL for this member (assuming offering.uses_svn())"
-        return urlparse.urljoin(settings.SVN_URL_BASE, repo_name(self.offering, self.person.userid))
+        return urllib.parse.urljoin(settings.SVN_URL_BASE, repo_name(self.offering, self.person.userid))
 
     def get_origsection(self):
         """
@@ -1396,7 +1396,7 @@ class MeetingTime(models.Model):
     labtut_section = models.CharField(max_length=4, null=True, blank=True,
         help_text='Section should be in the form "C101" or "D103".  None/blank for the non lab/tutorial events.')
     def __unicode__(self):
-        return "%s %s %s-%s" % (unicode(self.offering), WEEKDAYS[self.weekday], self.start_time, self.end_time)
+        return "%s %s %s-%s" % (str(self.offering), WEEKDAYS[self.weekday], self.start_time, self.end_time)
 
     class Meta:
         ordering = ['weekday']
@@ -1462,7 +1462,7 @@ class Unit(models.Model):
         return "%s (%s)" % (self.name, self.label)
 
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     
     def informal_name(self):
         if 'informal_name' in self.config and self.config['informal_name']:

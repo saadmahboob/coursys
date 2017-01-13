@@ -50,7 +50,7 @@ class SubmissionComponent(models.Model):
         "Should this componet type be visible to allow creation of new components (or soft-deleted)?"
         return True
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
         
     def save(self, **kwargs):
         if self.position is None:
@@ -80,7 +80,7 @@ class Submission(models.Model):
         ordering = ['-created_at']
         app_label = 'submission'
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
 
     "Set ownership, and make state = in progree "
     def set_owner(self, course, userid):
@@ -170,7 +170,7 @@ class SubmittedComponent(models.Model):
         else:
             return time
     def delete(self, *args, **kwargs):
-        raise NotImplementedError, "This object cannot be deleted because it is used as a foreign key."
+        raise NotImplementedError("This object cannot be deleted because it is used as a foreign key.")
     def __cmp__(self, other):
         return cmp(other.submit_time, self.submit_time)
     class Meta:

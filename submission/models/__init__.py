@@ -2,7 +2,7 @@ import zipfile
 import tempfile
 import os
 import errno
-import StringIO
+import io
 import unicodecsv as csv
 from pipes import quote
 from datetime import datetime
@@ -10,20 +10,20 @@ from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.http import StreamingHttpResponse
 
-from base import SubmissionComponent, Submission, StudentSubmission, GroupSubmission, SubmittedComponent
+from .base import SubmissionComponent, Submission, StudentSubmission, GroupSubmission, SubmittedComponent
 from coredata.models import Person
 from groups.models import GroupMember
 
-from url import URL
-from archive import Archive
-from pdf import PDF
-from code import Code
-from word import Word
-from image import Image
-from office import Office
-from codefile import Codefile
-from gittag import GitTag
-from text import Text
+from .url import URL
+from .archive import Archive
+from .pdf import PDF
+from .code import Code
+from .word import Word
+from .image import Image
+from .office import Office
+from .codefile import Codefile
+from .gittag import GitTag
+from .text import Text
 
 ALL_TYPE_CLASSES = [Archive, Code, Codefile, GitTag, Image, Office, PDF, Text, URL, Word]
 
@@ -74,7 +74,7 @@ def get_component(**kwargs):
         res = Type.Component.objects.filter(**kwargs)
         res = list(res)
         if len(res) > 1:
-            raise ValueError, "Search returned multiple values."
+            raise ValueError("Search returned multiple values.")
         elif len(res) == 1:
             return res[0]
 
@@ -89,7 +89,7 @@ def get_submitted_component(**kwargs):
         res = Type.SubmittedComponent.objects.filter(**kwargs)
         res = list(res)
         if len(res) > 1:
-            raise ValueError, "Search returned multiple values."
+            raise ValueError("Search returned multiple values.")
         elif len(res) == 1:
             return res[0]
 
@@ -136,7 +136,7 @@ class SubmissionInfo(object):
         """
         submission, is_group = cls._get_submission(submission_id)
         if not submission:
-            raise ValueError, 'No such submission'
+            raise ValueError('No such submission')
 
         activity = submission.activity
         si = cls(activity=activity)
@@ -270,7 +270,7 @@ class SubmissionInfo(object):
         """
         self.ensure_components()
         assert self.submitted_components is not None
-        return zip(self.components, self.submitted_components)
+        return list(zip(self.components, self.submitted_components))
 
     def submissions_and_components(self):
         """
@@ -279,7 +279,7 @@ class SubmissionInfo(object):
         assert self.submissions is not None
         assert self.all_submitted_components is not None
         for sub, subcomps in zip(self.submissions, self.all_submitted_components):
-            yield sub, zip(self.components, subcomps)
+            yield sub, list(zip(self.components, subcomps))
 
     def all_components_and_submitted(self):
         """
@@ -435,7 +435,7 @@ class SubmissionInfo(object):
                 individual_subcomps[sub.file_slug()] = scs
 
         # Now add them to the ZIP
-        for slug, subcomps in individual_subcomps.iteritems():
+        for slug, subcomps in individual_subcomps.items():
             lastsub = last_submission[slug]
             p = os.path.join(prefix, slug)
             self._add_to_zip(z, self.activity, subcomps, lastsub.created_at,
@@ -446,9 +446,9 @@ class SubmissionInfo(object):
 
         # produce summary of submission datetimes
         if found or always_summary:
-            slugs = last_submission.keys()
+            slugs = list(last_submission.keys())
             slugs.sort()
-            summarybuffer = StringIO.StringIO()
+            summarybuffer = io.StringIO()
             summarycsv = csv.writer(summarybuffer)
             summarycsv.writerow([Person.userid_header(), "Last Submission"])
             for s in slugs:
