@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'django_celery_beat',
     'featureflags',
     'rest_framework',
-    #'oauth_provider',
+    'oauth_provider',
     'rest_framework_swagger',
 
     'coredata',

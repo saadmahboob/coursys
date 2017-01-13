@@ -21,6 +21,7 @@ from courselib.slugs import make_slug
 from courselib.text import normalize_newlines, many_newlines
 from cache_utils.decorators import cached
 
+from faculty.event_types.constants import EVENT_FLAGS
 from faculty.event_types.awards import FellowshipEventHandler
 from faculty.event_types.awards import GrantApplicationEventHandler
 from faculty.event_types.awards import AwardEventHandler
@@ -34,8 +35,7 @@ from faculty.event_types.career import StudyLeaveEventHandler
 from faculty.event_types.career import AccreditationFlagEventHandler
 from faculty.event_types.career import PromotionApplicationEventHandler
 from faculty.event_types.career import SalaryReviewEventHandler
-from faculty.event_types.career import ContractReviewEventHandler 
-from faculty.event_types.constants import EVENT_FLAGS
+from faculty.event_types.career import ContractReviewEventHandler
 from faculty.event_types.info import CommitteeMemberHandler
 from faculty.event_types.info import ExternalAffiliationHandler
 from faculty.event_types.info import ExternalServiceHandler
@@ -202,8 +202,7 @@ class CareerQuerySet(models.query.QuerySet):
 # adapted from https://djangosnippets.org/snippets/562/
 class CareerEventManager(models.Manager):
     def get_queryset(self):
-        model = apps.get_model('faculty', 'CareerEvent')
-        return CareerQuerySet(model)
+        return CareerQuerySet(self.model, using=self._db)
 
     def __getattr__(self, attr, *args):
         try:

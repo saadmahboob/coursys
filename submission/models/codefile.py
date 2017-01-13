@@ -7,6 +7,7 @@ from os.path import splitext
 from django.conf import settings
 MEDIA_URL = settings.MEDIA_URL
 from django.template import Context, Template
+from django.utils.functional import SimpleLazyObject
 import re
 
 FILENAME_TYPES = [ # type of filename checking: checked by Codefile.SubmissionForm.clean_code
@@ -87,14 +88,14 @@ class SubmittedCodefile(SubmittedComponent):
         filename = self.file_filename(self.code, prefix)
         zipfile.write(self.code.path, filename)
 
-FIELD_TEMPLATE = Template('''<li>
+FIELD_TEMPLATE = SimpleLazyObject(lambda: Template('''<li>
                     {{ field.label_tag }}
                     <div class="inputfield">
                         {{ field }}
             {% if field.errors %}<div class="errortext">{{field.errors.0}}</div>{% endif %}
             <div class="helptext">{{field.help_text}}</div>
                 </div>
-                </li>''')
+                </li>'''))
                         
 class Codefile(object):
     label = "codefile"

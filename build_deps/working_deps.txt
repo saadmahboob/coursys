@@ -42,6 +42,7 @@ whoosh==2.7.4
 djangorestframework==3.5.3
 djangorestframework-oauth==1.1.0
 #django-oauth-plus==2.2.9
+
 hg+https://bitbucket.org/kerrermanisNL/django-oauth-plus/@5c17c4c5cecba4ce221a3e834bfc78eb1d21e73b # django 1.10 compatibility
 #hg+https://bitbucket.org/coagulant/django-oauth-plus/@c18d240#egg=django-oauth-plus # includes pull request https://bitbucket.org/david/django-oauth-plus/pull-request/15/remove-south-from-package-dependencies/diff
 markdown # for API docs
